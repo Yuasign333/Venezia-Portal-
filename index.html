@@ -1,0 +1,2744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Venezia Portal</title>
+
+  <!-- Lucide icon library (needs internet) -->
+  <script src="https://unpkg.com/lucide@0.468.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* =========================================================
+       1. BASE / RESET
+       ========================================================= */
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --orange: #e96f2b;
+      --orange-dark: #d85e1e;
+      --orange-soft: #fff1e8;
+      --ink: #263238;
+      --muted: #7b8790;
+      --line: #e8ebed;
+      --bg: #f5f7f8;
+      --green: #3eaf78;
+      --red: #d95b4b;
+      --blue: #64849c;
+    }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--bg);
+      font-size: 13px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================================================
+       2. LOGIN PAGE
+       ========================================================= */
+    .login-page {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #fff;
+    }
+
+    .login-card {
+      width: 380px;
+      border: 1px solid var(--line);
+      border-radius: 9px;
+      padding: 28px;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(31, 45, 61, 0.06);
+    }
+
+    .login-card h1 {
+      font-size: 18px;
+      margin: 5px 0;
+    }
+
+    /* Logo circle (used on login and sidebar) */
+    .brand-mark {
+      width: 64px;
+      height: 64px;
+      border: 1px solid #b9c0c5;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .brand-mark.small {
+      width: 32px;
+      height: 32px;
+      margin: 0;
+    }
+
+    /* The imgur logo fills the circle */
+    .brand-mark img {
+      width: 120%;
+      height: 120%;
+      object-fit: cover;
+      display: block;
+      margin-left: 5%;
+    }
+
+    .subtle {
+      color: #98a1a7;
+      font-size: 11px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    .input-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 16px;
+      width: 16px;
+      color: #9aa4aa;
+    }
+
+    .login-input {
+      width: 100%;
+      height: 42px;
+      border: 1px solid #dde2e5;
+      border-radius: 6px;
+      margin: 8px 0;
+      padding: 0 12px 0 38px;
+    }
+
+    .login-card > .login-input {
+      padding-left: 38px;
+    }
+
+    .login-btn {
+      width: 100%;
+      margin-top: 4px;
+    }
+
+    .guest-link {
+      border: 0;
+      background: none;
+      color: #ca6a36;
+      font-weight: 700;
+      font-size: 11px;
+      margin-top: 10px;
+    }
+
+    /* Quick role-switch buttons */
+    .role-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+    }
+
+    .role-btn {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 5px;
+      color: #7d888f;
+      padding: 10px 5px;
+      font-size: 9px;
+    }
+
+    .role-btn svg {
+      display: block;
+      margin: 0 auto 5px;
+      width: 17px;
+      height: 17px;
+    }
+
+    /* =========================================================
+       3. BUTTONS
+       ========================================================= */
+    .primary {
+      border: 0;
+      border-radius: 5px;
+      background: var(--orange);
+      color: white;
+      font-weight: 700;
+      padding: 11px 16px;
+    }
+
+    .primary:hover {
+      background: var(--orange-dark);
+    }
+
+    .secondary {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 5px;
+      padding: 9px 14px;
+      color: #69767d;
+    }
+
+    .view-btn {
+      width: 100%;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 5px;
+      background: var(--orange);
+      color: white;
+      padding: 9px;
+    }
+
+    .text-link {
+      border: 0;
+      background: none;
+      color: var(--orange);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .action-link {
+      border: 0;
+      background: none;
+      color: var(--orange);
+      font-size: 10px;
+    }
+
+    .approve {
+      border: 0;
+      background: #e77238;
+      color: white;
+      border-radius: 4px;
+      padding: 6px 9px;
+      font-size: 9px;
+    }
+
+    .checkin {
+      border: 0;
+      background: var(--orange);
+      color: white;
+      border-radius: 4px;
+      padding: 6px 9px;
+      font-size: 9px;
+    }
+
+    /* =========================================================
+       4. APP LAYOUT (sidebar + topbar + content)
+       ========================================================= */
+    .app-shell {
+      min-height: 100vh;
+      background: white;
+    }
+
+    /* ---- Sidebar ---- */
+    .sidebar {
+      position: fixed;
+      inset: 0 auto 0 0;
+      width: 190px;
+      background: white;
+      border-right: 1px solid var(--line);
+      padding: 20px 12px;
+    }
+
+    .brand-row {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 0 5px;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .nav-list {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .nav-item {
+      border: 0;
+      background: none;
+      width: 100%;
+      height: 38px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 10px;
+      color: #66727a;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .nav-item svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .nav-item.active {
+      background: var(--orange);
+      color: white;
+    }
+
+    /* ---- Main area ---- */
+    .main {
+      margin-left: 190px;
+      min-height: 100vh;
+      background: #fafbfb;
+    }
+
+    .topbar {
+      height: 66px;
+      background: white;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      padding: 0 30px;
+    }
+
+    .user-menu {
+      border: 0;
+      background: none;
+      color: #77838a;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+    }
+
+    .user-menu svg {
+      width: 16px;
+    }
+
+    .content {
+      padding: 26px 30px;
+      max-width: 1180px;
+    }
+
+    .page-title {
+      margin: 0;
+      font-size: 19px;
+    }
+
+    .page-desc {
+      color: #9aa4aa;
+      margin: 5px 0 20px;
+      font-size: 11px;
+    }
+
+    /* =========================================================
+       5. CARDS & PANELS
+       ========================================================= */
+    .amenity-card,
+    .metric-card,
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: white;
+    }
+
+    .panel {
+      padding: 18px;
+    }
+
+    .panel-title {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .panel-title h2 {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .panel-title .approve {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      height: 30px;
+    }
+
+    .panel-title .approve svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .section-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-title-row h2 {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* ---- Amenity cards ---- */
+    .cards-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .amenity-card {
+      padding: 18px;
+      text-align: center;
+    }
+
+    .amenity-card .icon-box {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      margin: auto auto 10px;
+      background: var(--orange-soft);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+    }
+
+    .amenity-card .icon-box svg {
+      width: 27px;
+      height: 27px;
+    }
+
+    .amenity-card h3 {
+      font-size: 12px;
+      margin: 7px 0 4px;
+    }
+
+    /* ---- Admin metric cards ---- */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .metric-card {
+      padding: 14px;
+    }
+
+    .metric-card .metric-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #8a969c;
+      font-size: 10px;
+    }
+
+    .metric-card strong {
+      font-size: 22px;
+      color: #3c484e;
+    }
+
+    /* =========================================================
+       6. STATUS BADGES
+       ========================================================= */
+    .status {
+      display: inline-block;
+      border-radius: 20px;
+      padding: 3px 9px;
+      font-size: 9px;
+      font-weight: 700;
+    }
+
+    .status.pending,
+    .status.unpaid {
+      background: #fff0dc;
+      color: #c75d25;
+    }
+
+    .status.confirmed,
+    .status.open {
+      background: #dff5ea;
+      color: #38966a;
+    }
+
+    .status.resolved,
+    .status.paid,
+    .status.acknowledged {
+      background: #e7f4ec;
+      color: #40936a;
+    }
+
+    .status.warning,
+    .status.maintenance {
+      background: #f4e4e3;
+      color: #b85a52;
+    }
+
+    /* =========================================================
+       7. TABLES
+       ========================================================= */
+    .table-wrap {
+      overflow: auto;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th {
+      text-align: left;
+      color: #9aa3a8;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 8px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #f1f2f2;
+      font-size: 10px;
+    }
+
+    /* =========================================================
+       8. BOOKING CALENDAR
+       ========================================================= */
+    .calendar-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .back-link {
+      border: 0;
+      background: white;
+      color: #75818a;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .calendar-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .calendar-title .icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--orange-soft);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+    }
+
+    .calendar-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: white;
+      display: grid;
+      place-items: center;
+    }
+
+    .calendar-grid {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      min-width: 760px;
+    }
+
+    .calendar-row {
+      display: grid;
+      grid-template-columns: 110px repeat(7, 1fr);
+    }
+
+    .calendar-row.header {
+      background: #fafafa;
+    }
+
+    .calendar-cell {
+      min-height: 54px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 8px;
+      text-align: center;
+      color: #7e898f;
+      font-size: 9px;
+    }
+
+    .calendar-cell:first-child {
+      text-align: left;
+      font-weight: 600;
+      color: #667177;
+    }
+
+    .calendar-cell:last-child {
+      border-right: 0;
+    }
+
+    /* Individual time slots */
+    .slot {
+      border: 0;
+      background: white;
+      width: 100%;
+      height: 38px;
+      border-radius: 4px;
+      color: #7b8790;
+      font-size: 9px;
+    }
+
+    .slot.available {
+      border: 1px solid var(--line);
+    }
+
+    .slot.pending {
+      background: #fff3e4;
+      border-left: 3px solid #eda75a;
+    }
+
+    .slot.booked {
+      background: #edf0f2;
+      border-left: 3px solid #9ba8af;
+    }
+
+    .slot.maintenance {
+      background: repeating-linear-gradient(135deg, #edf1f3, #edf1f3 4px, #fff 4px, #fff 8px);
+      border-left: 3px solid #bcc8ce;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      margin-top: 12px;
+      color: #8b969c;
+      font-size: 9px;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 1px solid #bbc5ca;
+    }
+
+    /* =========================================================
+       9. MODALS & FORMS
+       ========================================================= */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(24, 36, 43, 0.32);
+      display: grid;
+      place-items: center;
+      z-index: 20;
+    }
+
+    .modal {
+      width: 420px;
+      background: white;
+      border-radius: 8px;
+      padding: 18px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    }
+
+    .modal h2 {
+      font-size: 15px;
+      margin: 0 0 14px;
+    }
+
+    .add-amenity-modal {
+      width: 460px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 10px;
+      color: #68757c;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      padding: 9px;
+      color: #59666d;
+      background: white;
+    }
+
+    .field textarea {
+      height: 72px;
+      resize: vertical;
+    }
+
+    /* =========================================================
+       10. PAYMENTS
+       ========================================================= */
+    .payment-layout {
+      display: grid;
+      grid-template-columns: 1.7fr 1fr;
+      gap: 16px;
+    }
+
+    .payment-side {
+      align-self: start;
+    }
+
+    .monthly {
+      padding-bottom: 14px;
+    }
+
+    .monthly strong {
+      font-size: 20px;
+    }
+
+    /* 3-step payment progress indicator */
+    .stepper {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .step {
+      width: 76px;
+      text-align: center;
+      color: #b3babc;
+      font-size: 9px;
+    }
+
+    .step-circle {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #dfe4e6;
+      margin: 0 auto 4px;
+      display: grid;
+      place-items: center;
+      background: white;
+    }
+
+    .step.active {
+      color: #e6753b;
+    }
+
+    .step.active .step-circle {
+      border-color: #e6753b;
+      background: #e6753b;
+      color: white;
+    }
+
+    /* =========================================================
+       11. ADMIN, ANNOUNCEMENTS, CONCERNS, SECURITY
+       ========================================================= */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.55fr 1fr;
+      gap: 16px;
+    }
+
+    .announcements-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .concern-layout {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr;
+      gap: 16px;
+    }
+
+    .security-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.25fr;
+      gap: 16px;
+    }
+
+    .amenity-admin {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .amenity-admin-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #f0f2f2;
+      padding-bottom: 8px;
+    }
+
+    .amenity-admin-row:last-child {
+      border: 0;
+    }
+
+    .amenity-admin-row .icon-box {
+      width: 42px;
+      height: 42px;
+      background: var(--orange-soft);
+      color: var(--orange);
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+    }
+
+    .amenity-admin-row select {
+      margin-left: auto;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: #7e8a90;
+      padding: 5px;
+      font-size: 10px;
+    }
+
+    .notice {
+      background: #fff2e6;
+      border-left: 3px solid var(--orange);
+      padding: 12px;
+      color: #6d625a;
+      font-size: 10px;
+      margin-top: 10px;
+    }
+
+    .report-item {
+      border-bottom: 1px solid var(--line);
+      padding: 10px 0;
+    }
+
+    .report-item:last-child {
+      border: 0;
+    }
+
+    .report-item strong {
+      display: block;
+      font-size: 11px;
+    }
+
+    .report-item small {
+      color: #9aa4a9;
+      font-size: 9px;
+    }
+
+    .log-form {
+      display: grid;
+      gap: 8px;
+    }
+
+    .log-table {
+      margin-top: 14px;
+    }
+
+    /* =========================================================
+       12. TOAST NOTIFICATION
+       ========================================================= */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      background: #263238;
+      color: white;
+      border-radius: 6px;
+      padding: 12px 16px;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: 0.25s;
+      z-index: 50;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* =========================================================
+       13. SETTINGS PAGE
+       ========================================================= */
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 16px;
+    }
+
+    .settings-tabs {
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      background: white;
+      padding: 8px;
+      height: max-content;
+    }
+
+    .settings-tab {
+      width: 100%;
+      height: 42px;
+      border: 0;
+      border-radius: 5px;
+      background: white;
+      color: #77838a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      margin-bottom: 3px;
+      text-align: left;
+      font-size: 12px;
+    }
+
+    .settings-tab svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .settings-tab.active {
+      background: var(--orange-soft);
+      color: var(--orange);
+      font-weight: 700;
+    }
+
+    .settings-content {
+      min-width: 0;
+    }
+
+    .settings-section {
+      display: none;
+    }
+
+    .settings-section.active {
+      display: block;
+    }
+
+    .settings-panel {
+      padding: 22px;
+    }
+
+    .settings-section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+    }
+
+    .settings-section-head h2 {
+      font-size: 15px;
+      margin: 0 0 4px;
+    }
+
+    .settings-section-head p {
+      color: #98a2a8;
+      font-size: 10px;
+      margin: 0;
+    }
+
+    .profile-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--orange-soft);
+      color: var(--orange);
+      display: grid;
+      place-items: center;
+    }
+
+    .profile-avatar svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    .settings-form {
+      max-width: 620px;
+    }
+
+    .settings-form .field {
+      margin-bottom: 12px;
+    }
+
+    .settings-save {
+      margin-top: 6px;
+      min-width: 130px;
+    }
+
+    /* ---- Notification toggle switches ---- */
+    .preference-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preference-row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      padding: 14px 0;
+      cursor: pointer;
+    }
+
+    .preference-row:last-child {
+      border-bottom: 0;
+    }
+
+    .preference-row strong {
+      display: block;
+      font-size: 12px;
+    }
+
+    .preference-row small {
+      color: #98a2a8;
+      font-size: 10px;
+    }
+
+    .preference-row input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .switch {
+      width: 38px;
+      height: 22px;
+      border-radius: 20px;
+      background: #ccd4d8;
+      position: relative;
+      transition: 0.2s;
+    }
+
+    .switch:before {
+      content: "";
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      left: 3px;
+      top: 3px;
+      background: white;
+      transition: 0.2s;
+    }
+
+    .preference-row input:checked + .switch {
+      background: var(--orange);
+    }
+
+    .preference-row input:checked + .switch:before {
+      transform: translateX(16px);
+    }
+
+    /* =========================================================
+       14. RESPONSIVE (tablet and mobile)
+       ========================================================= */
+
+    /* ---- Tablet: collapse sidebar to icons ---- */
+    @media (max-width: 900px) {
+      .sidebar {
+        width: 64px;
+        padding: 20px 8px;
+      }
+
+      .brand-row span {
+        display: none;
+      }
+
+      .nav-item {
+        justify-content: center;
+        padding: 0;
+      }
+
+      .nav-item span {
+        display: none;
+      }
+
+      .main {
+        margin-left: 64px;
+      }
+
+      .cards-row,
+      .metrics {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .dashboard-grid,
+      .payment-layout,
+      .announcements-layout,
+      .concern-layout,
+      .security-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .content {
+        padding: 20px;
+      }
+
+      .login-card {
+        width: min(380px, calc(100vw - 32px));
+      }
+    }
+
+    /* ---- Mobile: sidebar becomes a bottom bar ---- */
+    @media (max-width: 600px) {
+      .cards-row,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .role-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .sidebar {
+        position: fixed;
+        bottom: 0;
+        top: auto;
+        width: 100%;
+        height: 58px;
+        z-index: 10;
+        display: flex;
+        padding: 5px 8px;
+        border-right: 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .brand-row {
+        display: none;
+      }
+
+      .nav-list {
+        margin: 0;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-around;
+      }
+
+      .nav-item {
+        width: auto;
+        height: 48px;
+      }
+
+      .main {
+        margin-left: 0;
+        margin-bottom: 58px;
+      }
+
+      .topbar {
+        height: 54px;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .modal {
+        width: calc(100vw - 24px);
+      }
+    }
+
+    /* ---- Settings page responsive rules ---- */
+    @media (max-width: 900px) {
+      .settings-layout {
+        grid-template-columns: 170px 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .settings-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .settings-tabs {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+      }
+
+      .settings-tab {
+        justify-content: center;
+        padding: 0 6px;
+        text-align: center;
+      }
+
+      .settings-tab span {
+        font-size: 9px;
+      }
+
+      .settings-panel {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- The whole app is rendered inside this div by JavaScript -->
+  <div id="app"></div>
+
+  <!-- Small popup message shown at the bottom right -->
+  <div id="toast" class="toast" role="status"></div>
+
+  <script>
+    /* =========================================================
+       1. APP STATE
+       ========================================================= */
+    const app = document.getElementById('app');
+
+    let currentRole = 'Homeowner';   // Homeowner | Guest | Admin | Security
+    let currentPage = 'dashboard';   // which page is currently shown
+
+    // Logo used on the login page and sidebar
+    const LOGO_URL = 'https://i.imgur.com/o6ZoFA8.png';
+
+    /* =========================================================
+       2. NAVIGATION MENUS PER ROLE
+       Each item: [pageKey, label, iconName]
+       ========================================================= */
+    const navs = {
+      Homeowner: [
+        ['dashboard',     'Home',             'LayoutDashboard'],
+        ['amenities',     'Book Amenity',     'CalendarDays'],
+        ['bookings',      'My Bookings',      'CalendarCheck'],
+        ['payments',      'My Payments',      'CreditCard'],
+        ['announcements', 'Announcements',    'Megaphone'],
+        ['concern',       'Report a Concern', 'TriangleAlert'],
+        ['settings',      'Settings',         'Settings']
+      ],
+      Guest: [
+        ['dashboard',     'Home',          'LayoutDashboard'],
+        ['amenities',     'Book Amenity',  'CalendarDays'],
+        ['bookings',      'My Bookings',   'CalendarCheck'],
+        ['announcements', 'Announcements', 'Megaphone'],
+        ['settings',      'Settings',      'Settings']
+      ],
+      Admin: [
+        ['dashboard',     'Dashboard',     'LayoutDashboard'],
+        ['bookings',      'Bookings',      'CalendarDays'],
+        ['payments',      'Payments',      'CreditCard'],
+        ['ledger',        'Dues Ledger',   'ReceiptText'],
+        ['amenities',     'Amenities',     'Blocks'],
+        ['announcements', 'Announcements', 'Megaphone'],
+        ['reports',       'Reports',       'ChartNoAxesCombined'],
+        ['visitor',       'Visitor Log',   'Users'],
+        ['homeowners',    'Homeowners',    'House'],
+        ['settings',      'Settings',      'Settings']
+      ],
+      Security: [
+        ['dashboard', 'Dashboard',   'LayoutDashboard'],
+        ['schedule',  'Schedule',    'CalendarDays'],
+        ['visitor',   'Visitor Log', 'Users'],
+        ['settings',  'Settings',    'Settings']
+      ]
+    };
+
+    /* =========================================================
+       3. AMENITY DATA
+       Each item: [name, description/icon key, label text, status class]
+       ========================================================= */
+    const amenityData = [
+      ['Basketball Court', 'basketball', 'Needs approval',       'pending'],
+      ['Swimming Pool',    'waves',      'Under Maintenance',    'maintenance'],
+      ['Table Tennis',     'circle-dot', 'Free instant booking', 'confirmed'],
+      ['Events Area',      'users',      'Needs approval',       'pending']
+    ];
+
+    /* =========================================================
+       4. HELPER FUNCTIONS
+       ========================================================= */
+
+    // Returns a Lucide icon tag. Converts names like "CalendarDays" to "calendar-days".
+    function icon(name) {
+      const map = {
+        LayoutDashboard: 'layout-dashboard',
+        CalendarDays: 'calendar-days',
+        CalendarCheck: 'calendar-check',
+        CreditCard: 'credit-card',
+        TriangleAlert: 'triangle-alert',
+        Bell: 'bell',
+        Plus: 'plus',
+        ReceiptText: 'receipt-text',
+        ChartNoAxesCombined: 'chart-no-axes-combined',
+        CalendarPlus: 'calendar-plus',
+        Basketball: 'circle-dot',
+        basketball: 'circle-dot',
+        Blocks: 'blocks',
+        Megaphone: 'megaphone',
+        House: 'house',
+        Users: 'users',
+        Settings: 'settings',
+        Shield: 'shield',
+        ShieldCheck: 'shield-check',
+        Mail: 'mail',
+        Lock: 'lock',
+        User: 'user',
+        ChevronDown: 'chevron-down',
+        Waves: 'waves',
+        waves: 'waves'
+      };
+
+      const iconName = map[name] || name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+      return `<i data-lucide="${iconName}" aria-hidden="true"></i>`;
+    }
+
+    // Turns every <i data-lucide="..."> tag into an actual SVG icon
+    function refreshIcons() {
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Shows a small message at the bottom right for ~2 seconds
+    function toast(message) {
+      const el = document.getElementById('toast');
+      el.textContent = message;
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 2200);
+    }
+
+    // Picks the icon for each amenity card based on its position
+    function amenityIcon(index) {
+      if (index === 0) return 'basketball';
+      if (index === 1) return 'waves';
+      if (index === 2) return 'circle-dot';
+      return 'users';
+    }
+
+    /* =========================================================
+       5. LOGIN
+       ========================================================= */
+
+    // Draws the login screen
+    function loginView() {
+      app.innerHTML = `
+        <main class="login-page">
+          <section class="login-card">
+
+            <!-- Logo image -->
+            <div class="brand-mark">
+              <img src="${LOGO_URL}" alt="Venezia logo">
+            </div>
+
+            <h1>Venezia Portal</h1>
+            <p class="subtle">Sign in to your account</p>
+
+            <div class="input-wrap">
+              ${icon('mail')}
+              <input class="login-input" placeholder="Email address">
+            </div>
+
+            <div class="input-wrap">
+              ${icon('lock')}
+              <input class="login-input" type="password" placeholder="Password">
+            </div>
+
+            <button class="primary login-btn" onclick="login()">Log In</button>
+            <button class="guest-link" onclick="setRole('Guest')">Continue as guest</button>
+
+            <!-- Quick role buttons for demo purposes -->
+            <div class="role-grid">
+              <button class="role-btn" onclick="setRole('Admin')">${icon('shield')}Admin</button>
+              <button class="role-btn" onclick="setRole('Security')">${icon('shield-check')}Security Guard</button>
+              <button class="role-btn" onclick="setRole('Homeowner')">${icon('house')}Homeowner</button>
+              <button class="role-btn" onclick="setRole('Guest')">${icon('user')}Guest</button>
+            </div>
+
+          </section>
+        </main>
+      `;
+      refreshIcons();
+    }
+
+    // Default login goes in as Homeowner
+    function login() {
+      currentRole = 'Homeowner';
+      currentPage = 'dashboard';
+      render();
+      toast('Welcome back, Homeowner!');
+    }
+
+    // Login as a specific role
+    function setRole(role) {
+      currentRole = role;
+      currentPage = 'dashboard';
+      render();
+      toast(`Signed in as ${role}`);
+    }
+
+    /* =========================================================
+       6. PAGE SHELL (sidebar + topbar + content area)
+       ========================================================= */
+    function shell(content) {
+      const roleNav = navs[currentRole];
+
+      // Build the sidebar buttons for the current role
+      const navButtons = roleNav.map(([page, label, ic]) => `
+        <button class="nav-item ${currentPage === page ? 'active' : ''}" onclick="navigate('${page}')">
+          ${icon(ic)}<span>${label}</span>
+        </button>
+      `).join('');
+
+      app.innerHTML = `
+        <div class="app-shell">
+
+          <!-- Sidebar -->
+          <aside class="sidebar">
+            <div class="brand-row">
+              <div class="brand-mark small">
+                <img src="${LOGO_URL}" alt="Venezia logo">
+              </div>
+              <span>Venezia Portal</span>
+            </div>
+            <nav class="nav-list">${navButtons}</nav>
+          </aside>
+
+          <!-- Main area -->
+          <main class="main">
+            <header class="topbar">
+              <!-- Clicking the user menu returns to the login screen -->
+              <button class="user-menu" onclick="loginView()">
+                ${icon('user')} ${currentRole} ${icon('chevron-down')}
+              </button>
+            </header>
+            <section class="content">${content}</section>
+          </main>
+
+        </div>
+      `;
+      refreshIcons();
+    }
+
+    // Switch to another page
+    function navigate(page) {
+      currentPage = page;
+      render();
+    }
+
+    // Decides which page function to run and draws it
+    function render() {
+      // If the current page doesn't exist for this role, go back to dashboard
+      if (!navs[currentRole].some(n => n[0] === currentPage)) {
+        currentPage = 'dashboard';
+      }
+
+      // Page key -> function that returns that page's HTML
+      const map = {
+        dashboard,
+        amenities,
+        bookings,
+        calendar: amenities,
+        payments,
+        announcements,
+        concern,
+        reports,
+        visitor,
+        schedule,
+        ledger,
+        homeowners,
+        settings
+      };
+
+      const view = map[currentPage] || dashboard;
+      shell(view());
+      refreshIcons();
+    }
+
+    /* =========================================================
+       7. DASHBOARD (Homeowner / Guest / Admin / Security)
+       ========================================================= */
+    function dashboard() {
+      if (currentRole === 'Admin') return adminDashboard();
+      if (currentRole === 'Security') return securityView();
+
+      // Amenity cards
+      const cards = amenityData.map((a, i) => `
+        <article class="amenity-card">
+          <div class="icon-box">${icon(amenityIcon(i))}</div>
+          <h3>${a[0]}</h3>
+          <span class="status ${a[3]}">${a[2]}</span>
+          <button class="view-btn" onclick="navigate('amenities')">View schedule</button>
+        </article>
+      `).join('');
+
+      return `
+        <h1 class="page-title">Welcome back, ${currentRole}!</h1>
+        <p class="page-desc">Here's a quick overview of the amenities and your bookings.</p>
+
+        <div class="cards-row">${cards}</div>
+
+        <div class="section-title-row">
+          <h2>My bookings</h2>
+          <button class="text-link" onclick="navigate('bookings')">View all →</button>
+        </div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Amenity</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>May 10, 2026 • 9:00 AM – 11:00 AM</td>
+                  <td>Basketball Court</td>
+                  <td>Family Time</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+                <tr>
+                  <td>May 12, 2026 • 10:00 AM – 12:00 PM</td>
+                  <td>Swimming Pool</td>
+                  <td>Family Swim</td>
+                  <td><span class="status confirmed">Confirmed</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+                <tr>
+                  <td>May 18, 2026 • 4:00 PM – 5:00 PM</td>
+                  <td>Table Tennis</td>
+                  <td>Friendly Game</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       8. AMENITIES (Homeowner / Guest view)
+       ========================================================= */
+
+    // Admin sees a management page, everyone else sees the booking page
+    function amenities() {
+      if (currentRole === 'Admin') return adminAmenities();
+      return amenitiesView();
+    }
+
+    function amenitiesView() {
+      const cards = amenityData.map((a, i) => `
+        <article class="amenity-card">
+          <div class="icon-box">${icon(amenityIcon(i))}</div>
+          <h3>${a[0]}</h3>
+          <span class="status ${a[3]}">${a[2]}</span>
+          <button class="view-btn" onclick="openCalendar('${a[0]}')">View schedule</button>
+        </article>
+      `).join('');
+
+      return `
+        <h1 class="page-title">Book an amenity</h1>
+        <p class="page-desc">Choose an amenity, check availability, and submit a booking request.</p>
+
+        <div class="cards-row">${cards}</div>
+
+        <div class="section-title-row"><h2>My bookings</h2></div>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Amenity</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>May 10, 2026 • 9:00 AM – 11:00 AM</td>
+                  <td>Basketball Court</td>
+                  <td>Family Time</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+                <tr>
+                  <td>May 12, 2026 • 2:00 PM – 4:00 PM</td>
+                  <td>Table Tennis</td>
+                  <td>Friendly Game</td>
+                  <td><span class="status confirmed">Confirmed</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       9. BOOKING CALENDAR + BOOKING MODAL
+       ========================================================= */
+
+    // Opens the weekly schedule of one amenity
+    function openCalendar(name = 'Swimming Pool') {
+      shell(calendarMarkup(name));
+    }
+
+    function calendarMarkup(name) {
+      // Row labels (time slots)
+      const times = [
+        '8:00 AM – 10:00 AM',
+        '10:00 AM – 12:00 PM',
+        '12:00 PM – 2:00 PM',
+        '2:00 PM – 4:00 PM',
+        '4:00 PM – 6:00 PM',
+        '6:00 PM – 8:00 PM'
+      ];
+
+      // Column headers (days)
+      const days = [
+        'Tue May 12', 'Wed May 13', 'Thu May 14', 'Fri May 15',
+        'Sat May 16', 'Sun May 17', 'Mon May 18'
+      ];
+
+      // Slot types and their labels (picked using row + column)
+      const slotTypes = ['available', 'available', 'booked', 'available', 'pending', 'maintenance'];
+      const labels    = ['Available', 'Available', 'Booked', 'Available', 'Pending approval', 'Booked'];
+
+      // Day header row
+      const headerCells = days.map(d => `<div class="calendar-cell">${d}</div>`).join('');
+
+      // One row per time slot, with one button per day
+      const rows = times.map((t, r) => {
+        const cells = slotTypes.map((s, c) => {
+          const isMaintenanceSlot = (r === 2 && c === 3);
+          const slotClass = isMaintenanceSlot ? 'maintenance' : s;
+          const label = isMaintenanceSlot ? 'Maintenance' : '◯ ' + labels[(c + r) % 6];
+
+          // Only "available" slots open the booking form
+          const clickAction = (s === 'available')
+            ? `openBooking('${name}')`
+            : 'void(0)';
+
+          return `
+            <div class="calendar-cell">
+              <button class="slot ${slotClass}" onclick="${clickAction}">${label}</button>
+            </div>
+          `;
+        }).join('');
+
+        return `<div class="calendar-row"><div class="calendar-cell">${t}</div>${cells}</div>`;
+      }).join('');
+
+      return `
+        <div class="calendar-head">
+          <button class="back-link" onclick="navigate('amenities')">← Back to amenities</button>
+          <div class="calendar-controls">
+            <button class="icon-btn">‹</button>
+            <span>May 12 – May 18, 2026</span>
+            <button class="icon-btn">›</button>
+            <button class="primary" onclick="openBooking('${name}')">
+              ${icon('calendar-plus')} Book this amenity
+            </button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="calendar-title">
+            <div class="icon-box">${icon('waves')}</div>
+            <div>
+              <h1 class="page-title">${name}</h1>
+              <p class="page-desc">
+                Relax, swim, and enjoy your time at the pool.
+                <span class="status maintenance">Under Maintenance</span>
+              </p>
+            </div>
+          </div>
+
+          <div class="calendar-grid">
+            <div class="calendar-row header">
+              <div class="calendar-cell">Time</div>
+              ${headerCells}
+            </div>
+            ${rows}
+          </div>
+
+          <div class="legend">
+            <span><i class="dot"></i> Available</span>
+            <span><i class="dot"></i> Pending</span>
+            <span><i class="dot"></i> Booked</span>
+            <span><i class="dot"></i> Under Maintenance</span>
+          </div>
+        </div>
+      `;
+    }
+
+    // Popup form to request a booking
+    function openBooking(name = 'Swimming Pool') {
+      const modal = `
+        <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+          <section class="modal">
+            <h2>Book amenity</h2>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Amenity</label>
+                <select>
+                  <option>${name}</option>
+                  <option>Basketball Court</option>
+                  <option>Table Tennis</option>
+                  <option>Events Area</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Date</label>
+                <input type="date" value="2026-05-12">
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="field">
+                  <label>Start time</label>
+                  <input type="time" value="09:00">
+                </div>
+                <div class="field">
+                  <label>End time</label>
+                  <input type="time" value="11:00">
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Number of guests</label>
+                <input type="number" value="1" min="1">
+              </div>
+
+              <div class="field">
+                <label>Notes (optional)</label>
+                <textarea placeholder="Add special requests"></textarea>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="secondary" onclick="closeModal()">Cancel</button>
+              <button class="primary" onclick="closeModal();toast('Booking request submitted')">Submit request</button>
+            </div>
+          </section>
+        </div>
+      `;
+      document.body.insertAdjacentHTML('beforeend', modal);
+      refreshIcons();
+    }
+
+    // Removes any open popup
+    function closeModal() {
+      const m = document.querySelector('.modal-backdrop');
+      if (m) m.remove();
+    }
+
+    /* =========================================================
+       10. MY BOOKINGS PAGE
+       ========================================================= */
+    function bookings() {
+      return `
+        <h1 class="page-title">My bookings</h1>
+        <p class="page-desc">Track and manage your amenity reservations.</p>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Date & Time</th>
+                  <th>Amenity</th>
+                  <th>Purpose</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>May 10, 2026 • 9:00 AM – 11:00 AM</td>
+                  <td>Basketball Court</td>
+                  <td>Family Time</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+                <tr>
+                  <td>May 12, 2026 • 10:00 AM – 12:00 PM</td>
+                  <td>Swimming Pool</td>
+                  <td>Family Swim</td>
+                  <td><span class="status confirmed">Confirmed</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+                <tr>
+                  <td>May 15, 2026 • 3:00 PM – 5:00 PM</td>
+                  <td>Events Area</td>
+                  <td>Community Event</td>
+                  <td><span class="status pending">Pending</span></td>
+                  <td><button class="action-link">View details →</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       11. PAYMENTS
+       ========================================================= */
+
+    // Admin sees verification page, homeowners see their own payments
+    function payments() {
+      if (currentRole === 'Admin') return adminPayments();
+
+      return `
+        <h1 class="page-title">My Payments</h1>
+        <p class="page-desc">Submit monthly dues payments and review your payment history.</p>
+
+        <div class="payment-layout">
+
+          <!-- Left: monthly dues + history -->
+          <div class="panel">
+            <div class="monthly">
+              <div style="display:flex;align-items:center;gap:12px">
+                <div class="icon-box">${icon('receipt-text')}</div>
+                <div>
+                  <small>Monthly dues</small><br>
+                  <strong>PHP 1,000</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title-row"><h2>Payment history</h2></div>
+
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Month</th>
+                    <th>Amount</th>
+                    <th>Payment date</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>May 2026</td>
+                    <td>PHP 1,000</td>
+                    <td>May 5, 2026</td>
+                    <td><span class="status paid">Paid</span></td>
+                  </tr>
+                  <tr>
+                    <td>April 2026</td>
+                    <td>PHP 1,000</td>
+                    <td>Apr 7, 2026</td>
+                    <td><span class="status paid">Paid</span></td>
+                  </tr>
+                  <tr>
+                    <td>March 2026</td>
+                    <td>PHP 1,000</td>
+                    <td>Mar 9, 2026</td>
+                    <td><span class="status paid">Paid</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right: submit payment form -->
+          <div class="panel payment-side">
+            <h2 style="font-size:14px">Submit payment</h2>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Month covered</label>
+                <select>
+                  <option>May 2026</option>
+                  <option>June 2026</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Amount</label>
+                <input value="PHP 1000" readonly>
+              </div>
+              <div class="field">
+                <label>Reference number</label>
+                <input placeholder="e.g. REF-2026-001234">
+              </div>
+            </div>
+
+            <button class="primary" style="width:100%;margin-top:12px" onclick="submitPayment()">
+              Submit for verification
+            </button>
+
+            <!-- Payment progress -->
+            <div class="stepper">
+              <div class="step active"><div class="step-circle">1</div>Pending</div>
+              <div class="step"><div class="step-circle">2</div>Matched</div>
+              <div class="step"><div class="step-circle">3</div>Acknowledged</div>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function submitPayment() {
+      toast('Payment submitted for verification');
+    }
+
+    /* =========================================================
+       12. ADMIN PAGES
+       ========================================================= */
+
+    // ---- Admin dashboard ----
+    function adminDashboard() {
+      return `
+        <h1 class="page-title">Admin Dashboard</h1>
+        <p class="page-desc">Overview of community activity and pending items.</p>
+
+        <!-- Summary numbers -->
+        <div class="metrics">
+          <div class="metric-card">
+            <div class="metric-top"><span>Pending bookings</span>${icon('calendar-days')}</div>
+            <strong>5</strong>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span>Pending payments</span>${icon('credit-card')}</div>
+            <strong>8</strong>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span>Open reports</span>${icon('triangle-alert')}</div>
+            <strong>3</strong>
+          </div>
+          <div class="metric-card">
+            <div class="metric-top"><span>Visitors today</span>${icon('users')}</div>
+            <strong>12</strong>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+
+          <!-- Pending booking requests -->
+          <div class="panel">
+            <div class="panel-title">
+              <h2>Pending booking requests</h2>
+              <button class="text-link" onclick="navigate('bookings')">View all →</button>
+            </div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Date requested</th>
+                    <th>Amenity</th>
+                    <th>Resident</th>
+                    <th>Status</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>May 12, 2026</td>
+                    <td>Swimming Pool</td>
+                    <td>May Santos</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><button class="approve" onclick="toast('Booking approved')">Approve</button></td>
+                  </tr>
+                  <tr>
+                    <td>May 13, 2026</td>
+                    <td>Basketball Court</td>
+                    <td>John Cruz</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><button class="approve" onclick="toast('Booking approved')">Approve</button></td>
+                  </tr>
+                  <tr>
+                    <td>May 15, 2026</td>
+                    <td>Events Area</td>
+                    <td>Ana Reyes</td>
+                    <td><span class="status pending">Pending</span></td>
+                    <td><button class="approve" onclick="toast('Booking approved')">Approve</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Recent reports -->
+          <div class="panel">
+            <div class="panel-title">
+              <h2>Recent reports</h2>
+              <button class="text-link" onclick="navigate('reports')">View all →</button>
+            </div>
+            <div class="report-item">
+              <strong>Facility noise complaint</strong>
+              <small>May 17, 2026 • <span class="status open">Open</span></small>
+            </div>
+            <div class="report-item">
+              <strong>Road infrastructure issue</strong>
+              <small>May 16, 2026 • <span class="status resolved">Resolved</span></small>
+            </div>
+            <div class="report-item">
+              <strong>Security concern</strong>
+              <small>May 14, 2026 • <span class="status open">Open</span></small>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ---- Admin payments ----
+    function adminPayments() {
+      return `
+        <h1 class="page-title">Admin Payments</h1>
+        <p class="page-desc">Review and manage homeowner payments and dues.</p>
+
+        <div class="dashboard-grid">
+
+          <!-- Payments waiting to be matched -->
+          <div class="panel">
+            <div class="panel-title"><h2>Pending verification</h2></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Homeowner</th>
+                    <th>Reference</th>
+                    <th>Amount</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Alex Francisco</td>
+                    <td>REF-2026-001</td>
+                    <td>PHP 1,000</td>
+                    <td>May 17</td>
+                    <td><button class="approve" onclick="toast('Payment matched')">Match</button></td>
+                  </tr>
+                  <tr>
+                    <td>Maria Santos</td>
+                    <td>REF-2026-002</td>
+                    <td>PHP 1,000</td>
+                    <td>May 16</td>
+                    <td><button class="approve" onclick="toast('Payment matched')">Match</button></td>
+                  </tr>
+                  <tr>
+                    <td>Jose Rivera</td>
+                    <td>REF-2026-003</td>
+                    <td>PHP 1,000</td>
+                    <td>May 15</td>
+                    <td><button class="approve" onclick="toast('Payment matched')">Match</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Quick dues overview -->
+          <div class="panel">
+            <div class="panel-title"><h2>Dues overview</h2></div>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Homeowner</th>
+                    <th>Apr</th>
+                    <th>May</th>
+                    <th>Jun</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>Alex Francisco</td><td>✓</td><td>✓</td><td>—</td></tr>
+                  <tr><td>Maria Santos</td><td>✓</td><td>✓</td><td>✓</td></tr>
+                  <tr><td>Jose Rivera</td><td>×</td><td>✓</td><td>—</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // ---- Dues ledger (month-by-month table per homeowner) ----
+    function ledger() {
+      const homeowners = ['Alex Francisco', 'Maria Santos', 'Jose Rivera', 'Linda Cruz'];
+      const months = ['✓', '✓', '×', '✓', '✓', '—'];
+
+      // Build one table row per homeowner
+      const rows = homeowners.map((name, i) => {
+        const cells = months.map((v, j) => {
+          // Simple demo logic to vary the ✓ / × marks
+          const mark = j < 4 - i
+            ? '✓'
+            : (j === 4 && !((i + 1) % 3) ? '×' : '✓');
+          return `<td>${mark}</td>`;
+        }).join('');
+
+        return `<tr><td>${name}</td>${cells}</tr>`;
+      }).join('');
+
+      return `
+        <h1 class="page-title">Dues Ledger</h1>
+        <p class="page-desc">Monthly dues status by homeowner.</p>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Homeowner</th>
+                  <th>January</th>
+                  <th>February</th>
+                  <th>March</th>
+                  <th>April</th>
+                  <th>May</th>
+                  <th>June</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // ---- Admin amenity management ----
+    function adminAmenities() {
+      // One row per amenity with a status dropdown
+      const rows = amenityData.map((a, i) => {
+        const iconName = (i === 0) ? 'basketball'
+                       : (i === 1) ? 'waves'
+                       : (i === 2) ? 'circle-dot'
+                       : 'blocks';
+
+        // Small description under the amenity name
+        const knownKeys = ['basketball', 'waves', 'circle-dot', 'users'];
+        const description = (i === 1)
+          ? 'Temporary pool closure'
+          : (knownKeys.includes(a[1]) ? 'Available for booking' : a[1]);
+
+        // Currently selected status
+        const currentStatus = (a[3] === 'maintenance' || i === 1) ? 'Under Maintenance' : 'Open';
+
+        return `
+          <div class="amenity-admin-row">
+            <div class="icon-box">${icon(iconName)}</div>
+            <div>
+              <strong>${a[0]}</strong><br>
+              <small class="subtle">${description}</small>
+            </div>
+            <select onchange="toast('Amenity status updated')">
+              <option>${currentStatus}</option>
+              <option>Open</option>
+              <option>Under Maintenance</option>
+            </select>
+          </div>
+        `;
+      }).join('');
+
+      return `
+        <h1 class="page-title">Amenities & Announcements</h1>
+        <p class="page-desc">Manage amenity status and post community announcements.</p>
+
+        <div class="announcements-layout">
+
+          <!-- Left: amenity list -->
+          <div class="panel">
+            <div class="panel-title">
+              <h2>Amenities</h2>
+              <button class="approve" onclick="openAddAmenity()">${icon('plus')} Add amenity</button>
+            </div>
+            <div class="amenity-admin" id="amenity-admin-list">${rows}</div>
+          </div>
+
+          <!-- Right: new announcement form -->
+          <div class="panel">
+            <h2 style="font-size:14px">New announcement</h2>
+            <div class="form-grid">
+              <div class="field">
+                <label>Title</label>
+                <input placeholder="e.g. Swimming Pool is under maintenance">
+              </div>
+              <div class="field">
+                <label>Category</label>
+                <select>
+                  <option>General</option>
+                  <option>Maintenance</option>
+                  <option>Event</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Audience</label>
+                <select>
+                  <option>All</option>
+                  <option>Homeowners</option>
+                  <option>Guests</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Body</label>
+                <textarea placeholder="Write your announcement here..."></textarea>
+              </div>
+            </div>
+            <button class="primary" style="width:100%;margin-top:12px" onclick="toast('Announcement posted')">Post</button>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // Popup form to add a new amenity
+    function openAddAmenity() {
+      document.body.insertAdjacentHTML('beforeend', `
+        <div class="modal-backdrop" onclick="if(event.target===this)closeModal()">
+          <section class="modal add-amenity-modal">
+            <h2>Add new amenity</h2>
+
+            <div class="form-grid">
+              <div class="field">
+                <label>Amenity name</label>
+                <input id="new-amenity-name" placeholder="e.g. Tennis Court">
+              </div>
+              <div class="field">
+                <label>Description</label>
+                <input id="new-amenity-description" placeholder="Brief description of the amenity">
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="field">
+                  <label>Capacity</label>
+                  <input id="new-amenity-capacity" type="number" min="1" value="10">
+                </div>
+                <div class="field">
+                  <label>Status</label>
+                  <select id="new-amenity-status">
+                    <option value="confirmed">Open</option>
+                    <option value="maintenance">Under Maintenance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="field">
+                <label>Booking type</label>
+                <select id="new-amenity-booking">
+                  <option>Admin approval required</option>
+                  <option>Instant booking</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button class="secondary" onclick="closeModal()">Cancel</button>
+              <button class="primary" onclick="submitAddAmenity()">Add amenity</button>
+            </div>
+          </section>
+        </div>
+      `);
+      refreshIcons();
+    }
+
+    // Saves the new amenity into the amenityData list
+    function submitAddAmenity() {
+      const name = document.getElementById('new-amenity-name');
+
+      // Name is required
+      if (!name.value.trim()) {
+        name.focus();
+        toast('Please enter an amenity name');
+        return;
+      }
+
+      const description = document.getElementById('new-amenity-description').value.trim() || 'Available for booking';
+      const status = document.getElementById('new-amenity-status').value;
+
+      amenityData.push([
+        name.value.trim(),
+        description,
+        status === 'maintenance' ? 'Under Maintenance' : 'Needs approval',
+        status
+      ]);
+
+      closeModal();
+      navigate('amenities');
+      toast('Amenity added successfully');
+    }
+
+    // ---- Homeowners list ----
+    function homeowners() {
+      return `
+        <h1 class="page-title">Homeowners</h1>
+        <p class="page-desc">Manage homeowner accounts and household details.</p>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Block & Lot</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Maria Santos</td>
+                  <td>B12 L4</td>
+                  <td>maria@example.com</td>
+                  <td><span class="status confirmed">Active</span></td>
+                </tr>
+                <tr>
+                  <td>Jose Rivera</td>
+                  <td>B8 L2</td>
+                  <td>jose@example.com</td>
+                  <td><span class="status confirmed">Active</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       13. ANNOUNCEMENTS & CONCERNS
+       ========================================================= */
+    function announcements() {
+      return `
+        <h1 class="page-title">Announcements</h1>
+        <p class="page-desc">Community updates and important notices.</p>
+
+        <div class="panel">
+          <article class="report-item">
+            <strong>Pool maintenance schedule</strong>
+            <small>Posted May 10, 2026</small>
+            <p>The swimming pool will be temporarily closed on May 14 for routine maintenance.</p>
+          </article>
+          <article class="report-item">
+            <strong>Community assembly</strong>
+            <small>Posted May 8, 2026</small>
+            <p>Residents are invited to the monthly community assembly at the Events Area.</p>
+          </article>
+        </div>
+      `;
+    }
+
+    function concern() {
+      return `
+        <h1 class="page-title">Report a Concern</h1>
+        <p class="page-desc">Help us keep Venezia safe, clean, and enjoyable.</p>
+
+        <div class="concern-layout">
+
+          <!-- Left: report form -->
+          <div class="panel">
+            <div class="form-grid">
+              <div class="field">
+                <label>Category</label>
+                <select>
+                  <option>Select a category</option>
+                  <option>Noise complaint</option>
+                  <option>Maintenance</option>
+                  <option>Security</option>
+                  <option>Billing</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>Subject</label>
+                <input placeholder="Briefly describe the issue">
+              </div>
+              <div class="field">
+                <label>Description</label>
+                <textarea placeholder="Provide more details..."></textarea>
+              </div>
+              <button class="primary" onclick="toast('Concern report submitted')">Submit report</button>
+            </div>
+          </div>
+
+          <!-- Right: previous reports -->
+          <div class="panel">
+            <div class="panel-title"><h2>My reports</h2></div>
+            <div class="report-item"><strong>Road infrastructure</strong><small>Open</small></div>
+            <div class="report-item"><strong>Billing concern</strong><small>Resolved</small></div>
+            <div class="report-item"><strong>Security concern</strong><small>Open</small></div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // Admin "Reports" page reuses the concern page
+    function reports() {
+      return concern();
+    }
+
+    /* =========================================================
+       14. SECURITY GUARD PAGES
+       ========================================================= */
+
+    // Visitor log: admin and security share the same view
+    function visitor() {
+      return currentRole === 'Admin' ? adminVisitor() : securityView();
+    }
+
+    function adminVisitor() {
+      return securityView(true);
+    }
+
+    // admin = true changes the title/description wording only
+    function securityView(admin = false) {
+      return `
+        <h1 class="page-title">${admin ? 'Visitor Log' : 'Security Dashboard'}</h1>
+        <p class="page-desc">${admin ? 'Review visitor and worker records.' : 'Approved bookings and visitor records.'}</p>
+
+        <div class="security-layout">
+
+          <!-- Left: today's schedule -->
+          <div class="panel">
+            <h2 style="font-size:14px">Today's approved schedule</h2>
+            <div class="table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Time</th>
+                    <th>Amenity</th>
+                    <th>Resident</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>8:00 AM – 10:00 AM</td>
+                    <td>Swimming Pool</td>
+                    <td>Santos Family</td>
+                  </tr>
+                  <tr>
+                    <td>10:00 AM – 12:00 PM</td>
+                    <td>Basketball Court</td>
+                    <td>Reyes, Bryan</td>
+                  </tr>
+                  <tr>
+                    <td>2:00 PM – 4:00 PM</td>
+                    <td>Events Area</td>
+                    <td>Villanueva, Angelo</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Right: visitor log form + table -->
+          <div class="panel">
+            <h2 style="font-size:14px">Visitor / worker log</h2>
+
+            <div class="log-form">
+              <div class="field">
+                <label>Name</label>
+                <input placeholder="Full name">
+              </div>
+
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                <div class="field">
+                  <label>Purpose</label>
+                  <select>
+                    <option>Visitor</option>
+                    <option>Delivery</option>
+                    <option>Maintenance</option>
+                  </select>
+                </div>
+                <div class="field">
+                  <label>Time in</label>
+                  <input type="datetime-local">
+                </div>
+              </div>
+
+              <button class="primary" onclick="toast('Visitor checked in')">Log entry</button>
+            </div>
+
+            <div class="log-table table-wrap">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Purpose</th>
+                    <th>Time in</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Peter John</td>
+                    <td>Delivery</td>
+                    <td>09:05 AM</td>
+                    <td><button class="checkin" onclick="toast('Visitor checked out')">Check out</button></td>
+                  </tr>
+                  <tr>
+                    <td>Gloria M.</td>
+                    <td>Visitor</td>
+                    <td>10:20 AM</td>
+                    <td><button class="checkin" onclick="toast('Visitor checked out')">Check out</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // Security "Schedule" page
+    function schedule() {
+      return `
+        <h1 class="page-title">Today's approved schedule</h1>
+        <p class="page-desc">Approved bookings and scheduled amenity use.</p>
+
+        <div class="panel">
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Amenity</th>
+                  <th>Resident</th>
+                  <th>Guests</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>8:00 AM – 10:00 AM</td>
+                  <td>Swimming Pool</td>
+                  <td>Santos Family</td>
+                  <td>4</td>
+                </tr>
+                <tr>
+                  <td>10:00 AM – 12:00 PM</td>
+                  <td>Basketball Court</td>
+                  <td>Reyes, Bryan</td>
+                  <td>3</td>
+                </tr>
+                <tr>
+                  <td>2:00 PM – 4:00 PM</td>
+                  <td>Events Area</td>
+                  <td>Villanueva, Angelo</td>
+                  <td>12</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    /* =========================================================
+       15. SETTINGS (Profile / Password & Security / Notifications)
+       ========================================================= */
+    function settings() {
+      // Name shown in the profile form depends on the role
+      const fullName = currentRole === 'Admin'    ? 'Admin User'
+                     : currentRole === 'Security' ? 'Security Guard'
+                     : 'Maria Santos';
+
+      // Block & lot field only for Homeowner and Guest
+      const blockLotField = (currentRole === 'Homeowner' || currentRole === 'Guest')
+        ? `<div class="field">
+             <label>Block and lot</label>
+             <input value="Block 12, Lot 4">
+           </div>`
+        : '';
+
+      return `
+        <h1 class="page-title">Settings</h1>
+        <p class="page-desc">Manage your account, security, and notification preferences.</p>
+
+        <div class="settings-layout">
+
+          <!-- Left: tab buttons -->
+          <nav class="settings-tabs" aria-label="Settings sections">
+            <button class="settings-tab active" onclick="switchSettingsTab(this,'profile')">
+              ${icon('user')}<span>Profile</span>
+            </button>
+            <button class="settings-tab" onclick="switchSettingsTab(this,'security')">
+              ${icon('shield-check')}<span>Password & Security</span>
+            </button>
+            <button class="settings-tab" onclick="switchSettingsTab(this,'notifications')">
+              ${icon('bell')}<span>Notifications</span>
+            </button>
+          </nav>
+
+          <!-- Right: tab contents -->
+          <div class="settings-content">
+
+            <!-- Profile tab -->
+            <section class="settings-section active" data-settings="profile">
+              <div class="panel settings-panel">
+                <div class="settings-section-head">
+                  <div>
+                    <h2>Profile information</h2>
+                    <p>Update your personal and contact details.</p>
+                  </div>
+                  <div class="profile-avatar">${icon('user')}</div>
+                </div>
+
+                <div class="settings-form">
+                  <div class="field">
+                    <label>Full name</label>
+                    <input value="${fullName}">
+                  </div>
+                  <div class="field">
+                    <label>Email address</label>
+                    <input type="email" value="${currentRole.toLowerCase()}@venezia.com">
+                  </div>
+                  <div class="field">
+                    <label>Mobile number</label>
+                    <input value="0917 123 4567">
+                  </div>
+                  ${blockLotField}
+                  <button class="primary settings-save" onclick="toast('Profile changes saved')">Save changes</button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Password & Security tab -->
+            <section class="settings-section" data-settings="security">
+              <div class="panel settings-panel">
+                <div class="settings-section-head">
+                  <div>
+                    <h2>Password & Security</h2>
+                    <p>Keep your account protected.</p>
+                  </div>
+                </div>
+
+                <div class="settings-form">
+                  <div class="field">
+                    <label>Current password</label>
+                    <input type="password" placeholder="Enter current password">
+                  </div>
+                  <div class="field">
+                    <label>New password</label>
+                    <input type="password" placeholder="Enter new password">
+                  </div>
+                  <div class="field">
+                    <label>Confirm new password</label>
+                    <input type="password" placeholder="Confirm new password">
+                  </div>
+                  <button class="primary settings-save" onclick="toast('Password updated successfully')">Update password</button>
+                </div>
+              </div>
+            </section>
+
+            <!-- Notifications tab -->
+            <section class="settings-section" data-settings="notifications">
+              <div class="panel settings-panel">
+                <div class="settings-section-head">
+                  <div>
+                    <h2>Notification preferences</h2>
+                    <p>Choose which updates you receive.</p>
+                  </div>
+                </div>
+
+                <div class="preference-list">
+                  <label class="preference-row">
+                    <span>
+                      <strong>Booking updates</strong>
+                      <small>Confirmation, approval, and schedule changes</small>
+                    </span>
+                    <input type="checkbox" checked>
+                    <span class="switch"></span>
+                  </label>
+
+                  <label class="preference-row">
+                    <span>
+                      <strong>Payment reminders</strong>
+                      <small>Monthly dues and payment status updates</small>
+                    </span>
+                    <input type="checkbox" checked>
+                    <span class="switch"></span>
+                  </label>
+
+                  <label class="preference-row">
+                    <span>
+                      <strong>Community announcements</strong>
+                      <small>Events, maintenance, and general notices</small>
+                    </span>
+                    <input type="checkbox" checked>
+                    <span class="switch"></span>
+                  </label>
+
+                  <label class="preference-row">
+                    <span>
+                      <strong>Concern report updates</strong>
+                      <small>Status changes to submitted reports</small>
+                    </span>
+                    <input type="checkbox">
+                    <span class="switch"></span>
+                  </label>
+                </div>
+
+                <button class="primary settings-save" onclick="toast('Notification preferences saved')">Save preferences</button>
+              </div>
+            </section>
+
+          </div>
+        </div>
+      `;
+    }
+
+    // Switches between the Settings tabs (Profile / Security / Notifications)
+    function switchSettingsTab(button, name) {
+      // Remove "active" from all tabs, then add it to the clicked one
+      document.querySelectorAll('.settings-tab').forEach(tab => tab.classList.remove('active'));
+      button.classList.add('active');
+
+      // Show only the section that matches the clicked tab
+      document.querySelectorAll('.settings-section').forEach(section => {
+        section.classList.toggle('active', section.dataset.settings === name);
+      });
+    }
+
+    /* =========================================================
+       16. START THE APP
+       ========================================================= */
+    loginView();
+  </script>
+</body>
+</html>
